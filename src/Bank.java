@@ -285,14 +285,15 @@ public class Bank
 					case 3:
 						System.out.print("Enter the Start Date (YYYY-MM-DD) : ");
 						String d1 = Input.getString(); 
+						if(d1 == null) break ; 
 						System.out.print("Enter the End Date (YYYY-MM-DD) : ");
 						String d2 = Input.getString();
-
+						if(d2 == null) break ; 
 						query = "SELECT * FROM Transaction where Date_of_Trans " + 
 								"BETWEEN '" + d1 + " 00:00:00' And '" + d2 + " 23:59:59' " + 
 								"And ac_no in (Select Ac_no from Account where Customer_ID =" + cus.user_ID +
 								" ) order by Date_of_Trans DESC;" ; 
-						System.out.println(query); 
+
 						Account.ViewTransaction(query);
 						break ; 
 					case 4: 

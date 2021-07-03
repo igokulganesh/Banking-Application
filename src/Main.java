@@ -101,10 +101,15 @@ class Input
 	public static String getString()
 	{	
 		String str = sc.nextLine(); 
+
+		if(str.isBlank())
+		{
+			System.out.println("Empty String Not Accepted");
+			return null ; 
+		}
+
 		return str ;
 	}
-
-	
 
 	public static char getChar()
 	{	
