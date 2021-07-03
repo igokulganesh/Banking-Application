@@ -2,19 +2,23 @@ public class Bank
 {
 	public void MainMenu() throws Exception
 	{
-		Main.cls(); 
-		System.out.print("1. Login\n2. SignUp \n0. Exit\n\nEnter Your Choice: ");
 		Customer cus ; 
 		int ch = 0;
 		while(ch == 0)
 		{
+			Main.cls(); 
+			System.out.print("1. Login\n2. SignUp \n0. Exit\n\nEnter Your Choice: ");
 			ch = Input.getInt(); 
 			switch(ch)
 			{
 			case 1:
 				cus = Customer.Login();
 				if(cus == null)
+				{
+					System.out.println("\n\t\t\t*** Login Failed ***\n");
+					Input.prompt();
 					break ; 
+				}
 				if(cus.acList.size() == 0)
 					NewCustomer(cus);
 				else
@@ -23,7 +27,11 @@ public class Bank
 			case 2:
 				cus = Customer.SignUp();
 				if(cus == null)
+				{
+					System.out.println("\n\t\t\t*** SignUp Failed ***\n");
+					Input.prompt();
 					break ;
+				}
 				NewCustomer(cus);
 				break ;
 			case 0:
@@ -35,26 +43,24 @@ public class Bank
 		}
 	}
 
-	public void NewCustomer(Customer cus) throws Exception
+	public void NewCustomer(Customer cus) throws Exception 
 	{
-		Main.cls(); 
-		System.out.println(
-			"\t\t\t ::: Welcome ::: " + cus.username + "\n\n" +
-			"You have no Account\n"  
-		);
-
-		Account ac = OpenAccount(cus);
-		System.out.println(Account.AcType[ac.ac_type-1] + " Created...\n");
-		ac.AccountDetails();
+		Account ac = Account.CreateAccount(cus);
+		if(ac == null)
+		{
+			System.out.println("\n\t\t\t*** Account not Created ***\n");
+			Input.prompt(); 
+		}
+		else
+			cus.acList.add(ac); 
 
 		HomeMenu(cus); 
 	}
 
 	public void HomeMenu(Customer cus) throws Exception
 	{
-		Main.cls(); 
-		System.out.println("\t Welcome ::: " + cus.username + "\n");
-		
+		Main.cls();
+		System.out.println("\t Welcome ::: " + cus.username + "\n");	
 		int ch = 1; 
 		Account ac = new Account() ;
 		int ac_No ;
@@ -236,7 +242,7 @@ public class Bank
 				break ; 
 			case 6:
 				// Open an Account 
-				ac = OpenAccount(cus);
+				ac = Account.CreateAccount(cus);
 				Main.cls();
 				System.out.println(Account.AcType[ac.ac_type-1] + " Created...\n");
 				ac.AccountDetails();
@@ -250,31 +256,6 @@ public class Bank
 				ch = 0 ;
 			}
 		}
-	}
-
-	public Account OpenAccount(Customer cus) throws Exception
-	{
-		Main.cls();
-		System.out.println("\t\t ::: Create an Account :::\n");
-		System.out.print(
-			"\t1. Savings Account \n" +
-			"\t2. Current Account \n" +
-/*			"\t3. Fixed Deposit \n" + 
-			"\t4. Recurrent Deposit \n" + */
-			" Choose Account Type: "
-		);
-
-		int ch = Input.getInt();
-
-		if(ch > 2 || ch < 1)
-		{
-			System.out.println("\t\t\t **** Not Valid Choice ***\n");
-			return null ; 
-		}
-
-		Account ac = new Account(); 
-		ac.CreateAccount(cus, ch);
-		return ac ; 
 	}
 
 }

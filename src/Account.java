@@ -174,8 +174,25 @@ public class Account
 		);
 	}
 
-	public void CreateAccount(Customer cus, int ac_type) throws Exception
+	public static Account CreateAccount(Customer cus) throws Exception
 	{
+		Main.cls();
+		System.out.println("\t\t ::: Create an Account :::\n");
+		System.out.print(
+			"\t1. Savings Account \n" +
+			"\t2. Current Account \n" +
+			"\n Choose Account Type: "
+		);
+
+		int ac_type = Input.getInt();
+
+		if(ac_type > 2 || ac_type < 1)
+		{
+			System.out.println("\t\t\t **** Not Valid Choice ***\n");
+			return null ; 
+		}
+
+		Account ac = new Account(); 
 		String query = "insert into Account(customer_ID, Ac_type, date_created, last_used) values( " + cus.user_ID  + "," + ac_type + ", CURDATE(), CURDATE())";  		
 		Sql.Update(query);
 
@@ -184,14 +201,15 @@ public class Account
 		if(!rs.next())
 		{
 			System.out.println("Error Occurred While Creating Account...");
-			System.exit(0); 
+			return null ;
 		}
 
-		this.ac_No = rs.getInt(1);
-		this.cus_id = cus.user_ID ; 
-		this.ac_type = ac_type ; 
-		this.dateCreated = LocalDate.now();
-		this.lastUsed = LocalDate.now();
+		ac.ac_No = rs.getInt(1);
+		ac.cus_id = cus.user_ID ; 
+		ac.ac_type = ac_type ; 
+		ac.dateCreated = LocalDate.now();
+		ac.lastUsed = LocalDate.now();
+		return ac ; 
 	}
 
 	public void Deposit(double amt) throws Exception

@@ -3,11 +3,10 @@ import java.util.*;
 import java.io.*;
 
 public class Main 
-{	
+{
 	public static void cls() throws Exception
 	{
 		new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor(); 
-		
 		System.out.println("=========================================");
 		System.out.println("           Banking Application");
 		System.out.println("=========================================\n");
@@ -18,7 +17,6 @@ public class Main
 		Bank bank = new Bank(); 
 		bank.MainMenu();
 	}
-
 }
 
 class Sql
@@ -58,16 +56,16 @@ class Sql
 			e.printStackTrace();
 		}
 	}
-
 }
 
 class Input
 {
 	static Scanner sc = new Scanner(System.in); 
 
-	public static void PromptMesg(String prompt)
+	public static void prompt() // Dummy input
 	{
-		System.out.print(prompt);
+		System.out.println("Press Enter to Continue...");
+		sc.next(); 
 	}
 
 	public static int getInt()
