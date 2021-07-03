@@ -104,6 +104,22 @@ class Input
 		return str ;
 	}
 
+	
+
+	public static char getChar()
+	{	
+		String str = sc.nextLine();
+		try
+		{
+			return str.charAt(0);
+		}
+		catch (Exception e) 
+		{
+			System.out.println("You didn't enter a valid Character.");
+			return 'n' ; 
+		}
+	}
+
 	public static String getPassword()
 	{
 		Console console = System.console();

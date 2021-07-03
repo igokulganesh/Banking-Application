@@ -91,7 +91,6 @@ public class Customer
 		return  cus ; 
 	} 
 
-
 	public static Customer Login() throws Exception
 	{
 		Main.cls(); 

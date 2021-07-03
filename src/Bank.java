@@ -138,23 +138,31 @@ public class Bank
 				{
 					ac.IncreaseBal(amt); 
 					Account.MakeTransaction(ac.ac_No, 0, amt, ac.balance,  "Deposited"); 
+					System.out.println("\t\t<<< Successfully Deposited >>>\n");
 				}
 				break ;
 			case 3:
 				// withDrawal
 				Main.cls();
-				System.out.println(" ::: WithDrawal :::\n");
+				System.out.println("  ::: WithDrawal :::\n");
 				
-				if(!ac.viewAllAccount(cus))
+				if(cus.acList.size() == 0)
+				{
+					System.out.println("\t\t<<< You Have No Account >>>\n");
 					break ; 
-
-				System.out.print("Enter Account Number : ");
-				ac_No = Input.getInt();
-				
-				if(ac_No == -999) break; 
+				}
+				else if(cus.acList.size() == 1)
+					ac_No = cus.acList.get(0).ac_No ; 
+				else
+				{
+					cus.showAllAccounts(); 
+					System.out.print("Enter Account Number : ");
+					ac_No = Input.getInt();	
+					if(ac_No == -999) break; 
+				}
 
 				System.out.print("Enter the Amount : ");
-				amt =  Input.getDouble();
+				amt = Input.getDouble();
 				
 				if(amt == -999.0) break; 
 				if(amt < 0) 
@@ -162,37 +170,71 @@ public class Bank
 					System.out.println("Amount cannot be Negative");
 					break ; 
 				}
-				
-				try
-				{
-					ac = new Account(cus, ac_No);
-					ac.withDrawal(amt);
-				}
-				catch(Exception ex)
+					
+				ac = cus.FindAccount(ac_No);
+				if(ac == null)
 				{
 					System.out.println("\n *** Not Valid Account Number ***\n");
-				}				
+					break ; 
+				}
 
+
+				if(ac.balance >= amt)
+				{
+					ac.IncreaseBal(-amt); 
+					Account.MakeTransaction(ac.ac_No, amt, 0, ac.balance,  "Withdrawan"); 
+					System.out.println("\t\t<<< Successfully Withdrawan >>>\n");
+				}
+				else
+					System.out.println("\n *** Not Enough Money in your Account ***\n");
+ 
 				break ;
+
 			case 4:
 				// Money Transfer 
 				Main.cls();
 				System.out.println(" ::: Money Transfer :::\n");
-				if(!ac.viewAllAccount(cus))
+
+				if(cus.acList.size() == 0)
+				{
+					System.out.println("\t\t<<< You Have No Account >>>\n");
 					break ; 
-				
-				System.out.print("Enter Your Account Number : ");
-				ac_No = Input.getInt();
-				
-				if(ac_No == -999) break; 
+				}
+				else if(cus.acList.size() == 1)
+					ac_No = cus.acList.get(0).ac_No ; 
+				else
+				{
+					cus.showAllAccounts(); 
+					System.out.print("Enter Account Number : ");
+					ac_No = Input.getInt();	
+					if(ac_No == -999) break; 
+				}
 
 				System.out.print("Enter Receiver Account Number : ");
 				int toAcNo = Input.getInt();
 				
 				if(toAcNo == -999) break; 
+
+				ac = cus.FindAccount(ac_No);
+				if(ac == null || ac_No == toAcNo)
+				{
+					System.out.println("\n *** Not Valid Account Number ***\n");
+					break ; 
+				}
+
+				Account toAc ; 
+				try
+				{
+					toAc = new Account(toAcNo); 
+				}catch( Exception ex)
+				{
+					System.out.println("Not Valid Account Number");
+					break ; 
+				}
 				
+
 				System.out.print("Enter the Amount : ");
-				amt =  Input.getDouble();
+				amt = Input.getDouble();
 				
 				if(amt == -999.0) break; 
 				if(amt < 0) 
@@ -200,9 +242,14 @@ public class Bank
 					System.out.println("Amount cannot be Negative");
 					break ; 
 				}
-				
-				Account.MoneyTransfer(cus, ac_No, toAcNo, amt);
 
+				if(ac.balance < amt)
+				{
+					System.out.println("\n *** Not Enough Money in your Account ***\n");
+					break ; 
+				}
+				
+				Account.MoneyTransfer(cus, ac, toAc, amt);
 				break ;
 			case 5:
 				// Account Statement 
@@ -242,9 +289,10 @@ public class Bank
 						String d2 = Input.getString();
 
 						query = "SELECT * FROM Transaction where Date_of_Trans " + 
-								"BETWEEN '" + d1 + "' And '" + d2 + "' " + 
+								"BETWEEN '" + d1 + " 00:00:00' And '" + d2 + " 23:59:59' " + 
 								"And ac_no in (Select Ac_no from Account where Customer_ID =" + cus.user_ID +
 								" ) order by Date_of_Trans DESC;" ; 
+						System.out.println(query); 
 						Account.ViewTransaction(query);
 						break ; 
 					case 4: 
@@ -260,10 +308,15 @@ public class Bank
 			case 6:
 				// Open an Account 
 				ac = Account.CreateAccount(cus);
-				Main.cls();
+				if(ac == null)
+				{
+					System.out.println("\n\t\t\t*** Account not Created ***\n");
+					break ; 
+				}
+				
+				cus.acList.add(ac); 
 				System.out.println(Account.AcType[ac.ac_type-1] + " Created...\n");
 				ac.AccountDetails();
-				System.out.println();
 				break ;
 
 			case 0:
