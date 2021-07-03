@@ -8,11 +8,24 @@ public class Customer
 	public String password ; 
 	public ArrayList<Account> acList ;
 
-	public ArrayList<Account> getAllAccounts(int id)
+	public ArrayList<Account> getAllAccounts(int id) throws Exception
 	{
-		acList = new ArrayList<Account> ;
+		acList = new ArrayList<Account>() ;
 		String query = "Select * From Account where Customer_ID = " + id ;
-		ResultSet rs = Sql.Select(); 
+		ResultSet rs = Sql.Select(query); 
+
+		while(rs.next())
+		{
+			Account ac = new Account() ; 
+			ac.ac_No = rs.getInt("Ac_no");
+			ac.ac_type = rs.getInt("Ac_type");
+			ac.balance = rs.getDouble("balance");
+			ac.cus_id = id ; 
+
+			acList.add(ac) ; 
+		}
+
+		return acList ; 
 	}
 
 	public static Customer getCustomer(String uname, String pass) throws Exception
@@ -33,15 +46,15 @@ public class Customer
 		else    
 		   return null ; 
 
-		cus.acList = getAllAccounts(cus.user_ID);
+		cus.acList = cus.getAllAccounts(cus.user_ID);
 		return  cus ; 
 	} 
 
-	public static Customer getCustomer(int id)
+	public static Customer getCustomer(int id) throws Exception
 	{ 
 		Customer cus = new Customer(); 
 		String query = "select * from User where user_ID=" + id ;  
-		ResultSet rs = stmt.Select(query);
+		ResultSet rs = Sql.Select(query);
 
 		if(rs.next())  
 		{
@@ -52,7 +65,7 @@ public class Customer
 		else    
 		   return null ; 
 
-		cus.acList = getAllAccounts(cus.user_ID);
+		cus.acList = cus.getAllAccounts(cus.user_ID);
 		return  cus ; 
 	} 
 
@@ -76,7 +89,7 @@ public class Customer
 		return cus ; // also returns null
 	}
 
-	public static Customer SignUp() 
+	public static Customer SignUp() throws Exception
 	{
 		Main.cls();
 
@@ -112,6 +125,4 @@ public class Customer
 
 		return cus ; 
 	}
-
-
 }

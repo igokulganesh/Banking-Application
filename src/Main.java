@@ -13,27 +13,6 @@ public class Main
 		System.out.println("=========================================\n");
 	}
 
-	public static Connection connect()
-	{
-		Connection c = null;
-		try 
-		{
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			c = DriverManager.getConnection("jdbc:mysql://localhost:3306/bank","root","root");
-		}
-		catch(SQLException e1)
-		{
-			System.out.println(e1.getMessage());
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			System.err.println(e.getClass().getName()+": "+e.getMessage());
-			System.exit(0);
-		}
-		return(c);
-	}
-	
 	public static void main(String[] args) throws Exception
 	{
 		Bank bank = new Bank(); 

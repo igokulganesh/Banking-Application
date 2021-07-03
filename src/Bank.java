@@ -40,8 +40,7 @@ public class Bank
 		Main.cls(); 
 		System.out.println(
 			"\t\t\t ::: Welcome ::: " + cus.name + "\n\n" +
-			"You have no Account\n" + 
-			"Create New Account"  
+			"You have no Account\n" +  
 		);
 
 		Account ac = OpenAccount(cus);
@@ -277,36 +276,5 @@ public class Bank
 		ac.CreateAccount(cus, ch);
 		return ac ; 
 	}
-	
-	public Customer SignUp() throws Exception
-	{
-		Main.cls();
 
-		System.out.println("\t::: SignUp :::\n");
-		Customer cus = new Customer() ; 
-
-		do {
-			
-			System.out.print("Enter Your Name : ");
-			cus.name = Input.getString();
-	
-			System.out.print("Enter Your Email ID : ");
-			cus.email = Input.getString();
-	
-			System.out.print("Enter Your Phone Number : ");
-			cus.phNumber = Input.getString();
-	
-			System.out.print("Enter Your Address : ");
-			cus.address = Input.getString();
-	
-			System.out.print("Enter the Username : ");
-			cus.username = Input.getString();
-	
-			System.out.print("Enter the Password : ");
-			cus.password = Input.getPassword();
-
-		}while(!cus.Create()) ;
-		
-		return cus ; 
-	}
 }
