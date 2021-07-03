@@ -21,7 +21,7 @@ public class Bank
 					HomeMenu(cus);
 				break ; 
 			case 2:
-				cus = SignUp();
+				cus = Customer.SignUp();
 				if(cus == null)
 					break ;
 				NewCustomer(cus);
@@ -39,8 +39,8 @@ public class Bank
 	{
 		Main.cls(); 
 		System.out.println(
-			"\t\t\t ::: Welcome ::: " + cus.name + "\n\n" +
-			"You have no Account\n" +  
+			"\t\t\t ::: Welcome ::: " + cus.username + "\n\n" +
+			"You have no Account\n"  
 		);
 
 		Account ac = OpenAccount(cus);
@@ -53,7 +53,7 @@ public class Bank
 	public void HomeMenu(Customer cus) throws Exception
 	{
 		Main.cls(); 
-		System.out.println("\t Welcome ::: " + cus.name + "\n");
+		System.out.println("\t Welcome ::: " + cus.username + "\n");
 		
 		int ch = 1; 
 		Account ac = new Account() ;

@@ -17,11 +17,8 @@ public class Account
 
 	public Account(int ac_No) throws Exception
 	{
-		Connection con = Main.connect() ;
-		Statement stmt = con.createStatement();
-
 		String query = "Select * From Account where Ac_no = " + ac_No ;
-		ResultSet rs = stmt.executeQuery(query);
+		ResultSet rs = Sql.Select(query);
 
 		if(!rs.next())
 			throw new Exception() ;
@@ -31,19 +28,13 @@ public class Account
 		this.ac_type = rs.getInt("Ac_type");
 		this.balance = rs.getDouble("balance");
 		this.dateCreated = rs.getDate("date_created").toLocalDate() ;
-		this.lastUsed = rs.getDate("last_used").toLocalDate(); 
-
-		stmt.close();
-		con.close();	
+		this.lastUsed = rs.getDate("last_used").toLocalDate(); 	
 	}
 
 	public Account(Customer cus, int ac_No) throws Exception
 	{
-		Connection con = Main.connect() ;
-		Statement stmt = con.createStatement();
-
 		String query = "Select * From Account where Customer_ID = " + cus.user_ID + " and Ac_no = " + ac_No ;
-		ResultSet rs = stmt.executeQuery(query);
+		ResultSet rs = Sql.Select(query);
 
 		if(!rs.next())
 			throw new Exception() ;
@@ -54,56 +45,13 @@ public class Account
 		this.balance = rs.getDouble("balance");
 		this.dateCreated = rs.getDate("date_created").toLocalDate() ;
 		this.lastUsed = rs.getDate("last_used").toLocalDate(); 
-
-		stmt.close();
-		con.close();
 	}
 
-	public static void UpdateOpenBalance(int acNo, double prev_bal, double bal, String remarks) throws Exception
-	{
-		Connection con = Main.connect(); 
-		String query = "insert into OpenBalance(ac_no, prev_bal, bal, remarks, date_of_trans) values (?, ?, ?, ?, now());" ; 
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, acNo); 
-		stmt.setDouble(2, prev_bal);
-		stmt.setDouble(3, bal);
-		stmt.setString(4, remarks); 
-		stmt.executeUpdate(); 
-
-		stmt.close();
-		con.close();
-	}
-
-	public static void ViewOpenBalance(Customer cus) throws Exception
-	{
-		Connection con = Main.connect() ;
-		Statement stmt = con.createStatement();
-
-		String query = "Select * from OpenBalance where ac_no in (select Ac_no from Account where Customer_ID=" + cus.user_ID + ") order by Date_of_Trans DESC;" ;
-		ResultSet rs = stmt.executeQuery(query);
-
-		System.out.println(
-			"| Ac Number | Previous Balance | Actual Balance |   Date \t |   Remarks  |\n"
-		);
-		while(rs.next())
-		{
-			int ac_No = rs.getInt("Ac_no");
-			double prev_bal = rs.getDouble("prev_bal");
-			double bal = rs.getDouble("bal");
-			String remarks = rs.getString("remarks");
-
-			System.out.println(ac_No + "\t\t" + prev_bal + "\t\t" + bal + "\t\t" + rs.getDate("Date_of_Trans") + " " + rs.getTime("Date_of_Trans")  + "\t" + remarks);
-		}
-
-		stmt.close();
-		con.close(); 
-	}
 
 	public static void MakeTransaction(int ac_No, double debit, double credit, double balance, String remarks) throws Exception
 	{
-		Connection con = Main.connect() ;
 		String query = "insert into Transaction(Ac_no, debit, credit, close_bal, Date_of_Trans, remarks) values(?, ?, ?, ?, now(), ?)";  		
-		PreparedStatement stmt = con.prepareStatement(query);
+		PreparedStatement stmt = Sql.con.prepareStatement(query);
 		stmt.setInt(1, ac_No);
 		stmt.setDouble(2, debit);
 		stmt.setDouble(3, credit);
@@ -111,20 +59,15 @@ public class Account
 		stmt.setString(5, remarks);
 		stmt.executeUpdate();				
 
-		stmt.close();
-		con.close();
-		
+		stmt.close();		
 	}
 
 	public static void ViewTransaction(String query) throws Exception 
 	{
-		Connection con = Main.connect() ;
-		Statement stmt = con.createStatement();
-
-		ResultSet rs = stmt.executeQuery(query);
+		ResultSet rs = Sql.Select(query);
 
 		System.out.println(
-			"\n ::: Account Statement ::: \n" +
+			"\n\t\t\t ::: Account Statement ::: \n" +
 			"\n\n|    Date    \t|\t Ac Number \t|   Debit  \t|   Credit \t|  Balance  \t|  Remarks  \t|\n"
 		);
 		while(rs.next())
@@ -138,9 +81,7 @@ public class Account
 			System.out.println(rs.getDate("Date_of_Trans") + " " + rs.getTime("Date_of_Trans") + " \t| " + ac_No + " \t| " + debit + "\t\t" + credit + "\t\t" + bal  + "\t\t" + remarks);
 		}
 
-		System.out.println("\n\t\t *** \n"); 
-		stmt.close();
-		con.close(); 
+		System.out.println("\n\t\\tt *** \n"); 
 	}
 
 	public static void MoneyTransfer(Customer cus, int ac_No, int toAcNo, double amt) throws Exception
@@ -174,14 +115,11 @@ public class Account
 		MakeTransaction(ac.ac_No, amt, 0, ac.balance,  "Money Transfered to " + toAc.ac_No);
 		MakeTransaction(toAc.ac_No, 0, amt, toAc.balance, "Money Received From " + ac.ac_No);
 
-/*
-		UpdateOpenBalance(ac.ac_No, from_prev_bal, ac.balance, "Money Transfered"); 
-		UpdateOpenBalance(toAc.ac_No, to_prev_bal, toAc.balance, "Money Received"); 
-*/
+
 		System.out.println("\n <<< Transacion Details >>> \n");
 
 		System.out.println(
-			"From : " + cus.name +
+			"From : " + cus.username +
 			"\nAccount No: " + ac.ac_No +
 			"\nTo : " + toAc.ac_No +
 			"\nAmount : " + amt + 
@@ -190,28 +128,17 @@ public class Account
 		);
 	}
 
-	public void updateBalance() throws Exception
+	public void updateBalance()
 	{
-		Connection con = Main.connect() ;
-		String query = "Update Account set balance = ? where Ac_no = ?" ;
-
-		PreparedStatement stmt = con.prepareStatement(query);
-
-		stmt.setDouble(1, this.balance);
-		stmt.setInt(2, this.ac_No);
-		stmt.executeUpdate();
-
-		stmt.close(); 
-		con.close();
+		String query = "Update Account set balance =" + this.balance +  " where Ac_no = " + this.ac_No ;
+		Sql.Select(query);
 	}
 
 	public boolean viewAllAccount(Customer cus) throws Exception
 	{
-		Connection con = Main.connect() ;
-		Statement stmt = con.createStatement();
 
 		String query = "Select * from Account where Customer_ID = " + cus.user_ID ;
-		ResultSet rs = stmt.executeQuery(query);
+		ResultSet rs = Sql.Select(query);
 
 		if(!rs.next())
 		{
@@ -230,11 +157,8 @@ public class Account
 			System.out.println(" " + ac_No + " " + AcType[ac_type-1] + "\tRs. " + balance);
 		}while(rs.next()); 
 
-		System.out.println("\n\t\t *****\n");
+		System.out.println("\n\t\t\t *****\n");
 
-
-		stmt.close(); 
-		con.close(); 
 		return true ; 
 	}
 	
@@ -252,14 +176,10 @@ public class Account
 
 	public void CreateAccount(Customer cus, int ac_type) throws Exception
 	{
-		Connection con = Main.connect() ;
-		String query = "insert into Account(customer_ID, Ac_type, date_created, last_used) values(?, ?, CURDATE(), CURDATE())";  		
-		PreparedStatement stmt = con.prepareStatement(query);
-		stmt.setInt(1, cus.user_ID);
-		stmt.setInt(2, ac_type);
-		stmt.executeUpdate();
+		String query = "insert into Account(customer_ID, Ac_type, date_created, last_used) values( " + cus.user_ID  + "," + ac_type + ", CURDATE(), CURDATE())";  		
+		Sql.Update(query);
 
-		ResultSet rs = stmt.executeQuery( "SELECT LAST_INSERT_ID();");
+		ResultSet rs = Sql.Select( "SELECT LAST_INSERT_ID();");
 		
 		if(!rs.next())
 		{
@@ -272,9 +192,6 @@ public class Account
 		this.ac_type = ac_type ; 
 		this.dateCreated = LocalDate.now();
 		this.lastUsed = LocalDate.now();
-
-		stmt.close(); 
-		con.close();
 	}
 
 	public void Deposit(double amt) throws Exception
@@ -285,11 +202,8 @@ public class Account
 			return ;
 		}
 
-		Connection con = Main.connect(); 
-		Statement stmt = con.createStatement();
-
 		String query = "Select balance From Account where Ac_no =" + ac_No ; 
-		ResultSet rs = stmt.executeQuery(query);
+		ResultSet rs = Sql.Select(query);
 
 		rs.next(); 
 		double prev_bal = rs.getDouble("balance"); 
@@ -299,24 +213,15 @@ public class Account
 		MakeTransaction(this.ac_No, 0, amt, this.balance,  "Deposited"); 
 
 		query = "Update Account set balance=" + this.balance + "where Ac_no=" + this.ac_No ; 
-		stmt.executeUpdate(query); 
+		Sql.Update(query); 
 
-		System.out.println("\n<<< Successfully Deposited >>>\n");
-
-		stmt.close(); 
-		con.close(); 
+		System.out.println("\n\t\t<<< Successfully Deposited >>>\n"); 
 	}
 
 	public void deleteAc() throws Exception
 	{
-		Connection con = Main.connect(); 
-		Statement stmt = con.createStatement(); 
-
 		String query = "delete from Account where ac_no= " + ac_No ; 
-		stmt.executeUpdate(query);
-
-		stmt.close(); 
-		con.close(); 	
+		Sql.Select(query);	
 	}
 
 	public void withDrawal(double amt) throws Exception
@@ -327,11 +232,8 @@ public class Account
 			return ; 
 		}
 
-		Connection con = Main.connect(); 
-		Statement stmt = con.createStatement(); 
-
 		String query = "Select balance From Account where Ac_no =" + ac_No ; 
-		ResultSet rs = stmt.executeQuery(query);
+		ResultSet rs = Sql.Select(query);
 
 		rs.next(); 
 		double prev_bal = rs.getDouble("balance"); 
@@ -347,12 +249,9 @@ public class Account
 		MakeTransaction(this.ac_No, amt, 0, this.balance,  "withdrawan");
 
 		query = "Update Account set balance=" + this.balance + "where Ac_no=" + this.ac_No ; 
-		stmt.executeUpdate(query); 
+		Sql.Update(query); 
 
-		System.out.println("\n<<< Money withdrawan Successfully >>>\n");
-
-		stmt.close(); 
-		con.close(); 
+		System.out.println("\n\t\t<<< Money withdrawan Successfully >>>\n");
 	}
 
 	public double getBalance()
