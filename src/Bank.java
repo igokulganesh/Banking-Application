@@ -3,11 +3,14 @@ public class Bank
 	public void MainMenu() throws Exception
 	{
 		Customer cus ; 
-		int ch = 0;
-		while(ch == 0)
+		int ch = 1;
+		while(true)
 		{
-			Main.cls(); 
-			System.out.print("1. Login\n2. SignUp \n0. Exit\n\nEnter Your Choice: ");
+			if(ch != 0)
+			{
+				Main.cls(); 
+				System.out.print("1. Login\n2. SignUp \n0. Exit\n\nEnter Your Choice: ");
+			}
 			ch = Input.getInt(); 
 			switch(ch)
 			{

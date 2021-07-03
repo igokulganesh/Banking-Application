@@ -21,7 +21,6 @@ public class Customer
 			ac.ac_type = rs.getInt("Ac_type");
 			ac.balance = rs.getDouble("balance");
 			ac.cus_id = id ; 
-
 			acList.add(ac) ; 
 		}
 
@@ -113,7 +112,13 @@ public class Customer
 
 			cus = getCustomer(username, password); 
 
-			query = "Insert into Customer(Customer_ID) values " + cus.user_ID ; 
+			if(cus == null)
+			{
+				System.out.println("Customer not Created");
+				return null ; 
+			}
+
+			query = "Insert into Customer(Customer_ID) values (" + cus.user_ID + ");" ; 
 			Sql.Update(query); 
 
 			stmt.close(); 

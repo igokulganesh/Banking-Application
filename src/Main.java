@@ -64,8 +64,8 @@ class Input
 
 	public static void prompt() // Dummy input
 	{
-		System.out.println("Press Enter to Continue...");
-		sc.next(); 
+		System.out.println("Press \"Enter key\" to continue...");
+		sc.nextLine(); 
 	}
 
 	public static int getInt()
