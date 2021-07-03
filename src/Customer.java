@@ -1,0 +1,117 @@
+import java.sql.*;
+import java.util.*;
+
+public class Customer 
+{
+	public int user_ID ;
+	public String username ; 
+	public String password ; 
+	public ArrayList<Account> acList ;
+
+	public ArrayList<Account> getAllAccounts(int id)
+	{
+		acList = new ArrayList<Account> ;
+		String query = "Select * From Account where Customer_ID = " + id ;
+		ResultSet rs = Sql.Select(); 
+	}
+
+	public static Customer getCustomer(String uname, String pass) throws Exception
+	{ 
+		Customer cus = new Customer(); 
+		String query = "Select * from User where username=? and password=?" ;  
+		PreparedStatement stmt = Sql.con.prepareStatement(query);
+		stmt.setString(1, uname);
+		stmt.setString(2, pass);
+		ResultSet rs = stmt.executeQuery();
+
+		if(rs.next())  
+		{
+			cus.user_ID = rs.getInt("user_ID");
+			cus.username = rs.getString("username") ; 
+			cus.password = rs.getString("password");
+		}
+		else    
+		   return null ; 
+
+		cus.acList = getAllAccounts(cus.user_ID);
+		return  cus ; 
+	} 
+
+	public static Customer getCustomer(int id)
+	{ 
+		Customer cus = new Customer(); 
+		String query = "select * from User where user_ID=" + id ;  
+		ResultSet rs = stmt.Select(query);
+
+		if(rs.next())  
+		{
+			cus.user_ID = rs.getInt("user_ID");
+			cus.username = rs.getString("username") ; 
+			cus.password = rs.getString("password");
+		}
+		else    
+		   return null ; 
+
+		cus.acList = getAllAccounts(cus.user_ID);
+		return  cus ; 
+	} 
+
+
+	public static Customer Login() throws Exception
+	{
+		Main.cls(); 
+		System.out.println("\t\t\t ::: Login :::\n");  
+
+		System.out.print("Enter Your Username : ");
+		String username = Input.getString(); 
+		
+		System.out.print("Enter Your Password : ");
+		String password = Input.getPassword();
+
+		Customer cus = getCustomer(username, password) ;
+
+		if(cus == null)  
+		   System.out.println("Invalid username or/and password...\n\n");   
+		
+		return cus ; // also returns null
+	}
+
+	public static Customer SignUp() 
+	{
+		Main.cls();
+
+		System.out.println("\t\t\t ::: SignUp :::\n");
+		
+		System.out.print("Enter the Username : ");
+		String username = Input.getString();
+
+		System.out.print("Enter the Password : ");
+		String password = Input.getPassword();
+
+		String query = "Insert into User(username, password) VALUES (?, ?)";
+		PreparedStatement stmt;
+		Customer cus = null ; 
+
+		try {
+			stmt = Sql.con.prepareStatement(query);
+			stmt.setString(1, username); 
+			stmt.setString(2, password); 
+			stmt.executeUpdate();
+
+			cus = getCustomer(username, password); 
+
+			query = "Insert into Customer(Customer_ID) values " + cus.user_ID ; 
+			Sql.Update(query); 
+
+			stmt.close(); 
+		}
+		catch(Exception e)
+		{
+			System.out.println("Username " + username + " Already Exists");
+		}
+
+		return cus ; 
+	}
+
+
+}

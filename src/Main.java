@@ -1,0 +1,136 @@
+import java.sql.*;
+import java.util.*;
+import java.io.*;
+
+public class Main 
+{	
+	public static void cls() throws Exception
+	{
+		new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor(); 
+		
+		System.out.println("=========================================");
+		System.out.println("           Banking Application");
+		System.out.println("=========================================\n");
+	}
+
+	public static Connection connect()
+	{
+		Connection c = null;
+		try 
+		{
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			c = DriverManager.getConnection("jdbc:mysql://localhost:3306/bank","root","root");
+		}
+		catch(SQLException e1)
+		{
+			System.out.println(e1.getMessage());
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			System.err.println(e.getClass().getName()+": "+e.getMessage());
+			System.exit(0);
+		}
+		return(c);
+	}
+	
+	public static void main(String[] args) throws Exception
+	{
+		Bank bank = new Bank(); 
+		bank.MainMenu();
+	}
+
+}
+
+class Sql
+{
+	static Connection con = null ;
+	static Statement stmt = null; 
+	static
+	{
+		try 
+		{
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/bank","root","root");
+			stmt = con.createStatement();
+		}
+		catch(Exception e)
+		{
+			System.out.println("Database Connection Error");
+			System.exit(0);
+		}
+	}
+
+	public static ResultSet Select(String query)
+	{
+		try {
+			return stmt.executeQuery(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null ;
+		}
+	}	
+
+	public static void Update(String query)
+	{
+		try {
+			stmt.executeUpdate(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+}
+
+class Input
+{
+	static Scanner sc = new Scanner(System.in); 
+
+	public static void PromptMesg(String prompt)
+	{
+		System.out.print(prompt);
+	}
+
+	public static int getInt()
+	{
+		String ip = sc.nextLine(); 
+
+		try 
+		{
+			return Integer.parseInt(ip);
+		}
+		catch (NumberFormatException e) 
+		{
+			System.out.println("You didn't enter a valid Number.");
+			return -999 ; 
+		}
+	}
+
+	public static double getDouble()
+	{
+		String ip = sc.nextLine();
+
+		try
+		{
+			return Double.parseDouble(ip);
+		}
+		catch (NumberFormatException e) 
+		{
+			System.out.println("You didn't enter a valid Number.");
+			return -999 ; 
+		}
+	}	
+
+	public static String getString()
+	{	
+		String str = sc.nextLine(); 
+		return str ;
+	}
+
+	public static String getPassword()
+	{
+		Console console = System.console();
+		String password = new String(console.readPassword()); 
+		return password ; 
+	}
+}
