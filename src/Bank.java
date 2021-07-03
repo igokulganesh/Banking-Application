@@ -91,20 +91,32 @@ public class Bank
 				// Balance Enquire 
 				Main.cls();
 				System.out.println(" ::: Balance Enquiry :::\n");
-				ac.viewAllAccount(cus);
+				if(cus.acList.size() == 0)
+				{
+					System.out.println("\t\t<<< You Have No Account >>>\n");
+					break ; 
+				}	
+				cus.showAllAccounts(); 
 				break ;
 			case 2:
 				// Deposit 
 				Main.cls();
-				System.out.println(" ::: Deposit :::\n");
+				System.out.println("  ::: Deposit :::\n");
 				
-				if(!ac.viewAllAccount(cus))
+				if(cus.acList.size() == 0)
+				{
+					System.out.println("\t\t<<< You Have No Account >>>\n");
 					break ; 
-
-				System.out.print("Enter Account Number : ");
-				ac_No = Input.getInt();
-				
-				if(ac_No == -999) break; 
+				}
+				else if(cus.acList.size() == 1)
+					ac_No = cus.acList.get(0).ac_No ; 
+				else
+				{
+					cus.showAllAccounts(); 
+					System.out.print("Enter Account Number : ");
+					ac_No = Input.getInt();	
+					if(ac_No == -999) break; 
+				}
 
 				System.out.print("Enter the Amount : ");
 				amt =  Input.getDouble();
@@ -115,15 +127,17 @@ public class Bank
 					System.out.println("Amount cannot be Negative");
 					break ; 
 				}
-
-				try
-				{
-					ac = new Account(cus, ac_No);
-					ac.Deposit(amt); 
-				}
-				catch(Exception ex)
+					
+				ac = cus.FindAccount(ac_No);
+				if(ac == null)
 				{
 					System.out.println("\n *** Not Valid Account Number ***\n");
+					break ; 
+				}
+				else
+				{
+					ac.IncreaseBal(amt); 
+					Account.MakeTransaction(ac.ac_No, 0, amt, ac.balance,  "Deposited"); 
 				}
 				break ;
 			case 3:
@@ -260,5 +274,4 @@ public class Bank
 			}
 		}
 	}
-
 }

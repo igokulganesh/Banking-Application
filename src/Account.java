@@ -212,28 +212,17 @@ public class Account
 		return ac ; 
 	}
 
-	public void Deposit(double amt) throws Exception
+	public void IncreaseBal(double amt) throws Exception
 	{
 		if(amt <= 0)
 		{
 			System.out.println("InVaild Amount");
 			return ;
 		}
-
-		String query = "Select balance From Account where Ac_no =" + ac_No ; 
-		ResultSet rs = Sql.Select(query);
-
-		rs.next(); 
-		double prev_bal = rs.getDouble("balance"); 
-
+		double prev_bal = this.balance ;  
 		this.balance = prev_bal + amt ; 
-
-		MakeTransaction(this.ac_No, 0, amt, this.balance,  "Deposited"); 
-
-		query = "Update Account set balance=" + this.balance + "where Ac_no=" + this.ac_No ; 
+		String query = "Update Account set balance=" + this.balance + "where Ac_no=" + this.ac_No ; 
 		Sql.Update(query); 
-
-		System.out.println("\n\t\t<<< Successfully Deposited >>>\n"); 
 	}
 
 	public void deleteAc() throws Exception

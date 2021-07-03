@@ -27,6 +27,29 @@ public class Customer
 		return acList ; 
 	}
 
+	public void showAllAccounts()
+	{
+		System.out.println("\n | Ac Number | Account Type | Balance |\n");
+
+		Account ac ; 
+		for (int i = 0; i < acList.size(); i++)
+		{
+			ac = acList.get(i);
+            System.out.println(" " + ac.ac_No + " " + Account.AcType[ac.ac_type-1] + "\tRs. " + ac.balance);
+		}
+		System.out.println("\n\t\t\t*****\n");
+	}
+
+	public Account FindAccount(int acNo)
+	{
+		for (int i = 0; i < acList.size(); i++)
+		{
+			if(acList.get(i).ac_No == acNo )
+				return acList.get(i) ;
+		}	
+		return null ;
+	}
+
 	public static Customer getCustomer(String uname, String pass) throws Exception
 	{ 
 		Customer cus = new Customer(); 
