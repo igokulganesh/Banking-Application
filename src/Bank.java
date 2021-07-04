@@ -1,3 +1,5 @@
+import java.sql.* ; 
+
 public class Bank 
 {
 	public void MainMenu() throws Exception
@@ -77,11 +79,11 @@ public class Bank
 				"\t 4. Money Transfer \n" + 
 				"\t 5. Account Statement \n" + 
 				"\t 6. Check Request \n" +
-				"\t 7. Check Receipt \n" +  
+				"\t 7. View Check Receipt \n" +  
 				"\t 8. Open an Account \n" + 
 				/*"\t 8. Close an Account \n" +*/
 				//"\t 9. Preference \n" +
-	 			"\t 0. Quit \n\n"  + 
+	 			"\t 0. Back \n\n"  + 
 				"Enter Your Choice: "
 			);
 			 
@@ -112,17 +114,21 @@ public class Bank
 				break ; 
 			case 6:
 				// Check Request 
-				CheckRequest(cus); 
+				CheckRequest(cus);
+				break ; 
+			case 7:
+				// view Check Recipt 
+				ViewCheck(cus);
+				break;  
 			case 8:
 				// Open an Account 
 				OpenAccount(cus);
 				break ;
 
 			case 0:
-				System.exit(0);
+				return ; 
 			default:
 				System.out.println("Please Enter Valid Choice !!!");
-				ch = 0 ;
 			}
 		}
 	}
@@ -131,6 +137,7 @@ public class Bank
 	{
 		Main.cls();
 		System.out.println(" ::: Balance Enquiry :::\n");
+		cus.acList = cus.getAllAccounts(cus.user_ID); 
 		if(cus.acList.size() == 0)
 		{
 			System.out.println("\t\t<<< You Have No Account >>>\n");
@@ -370,31 +377,39 @@ public class Bank
 	{
 		Main.cls();
 		System.out.println(" ::: Check Request :::\n");
-		int ac_No ;
+		int toAcNo, fromAcNo ;
 		double amt ; 
-		Account ac, fromAc ;
+		Account toAc, fromAc ;
 		if(cus.acList.size() == 0)
 		{
 			System.out.println("\t\t<<< You Have No Account >>>\n");
 			return  ; 
 		}
 		else if(cus.acList.size() == 1)
-			ac_No = cus.acList.get(0).ac_No ; 
+		{
+			toAc = cus.acList.get(0) ; 
+			toAcNo = toAc.ac_No ; 
+		}
 		else
 		{
 			cus.showAllAccounts(); 
-			System.out.print("Enter Account Number : ");
-			ac_No = Input.getInt();	
-			if(ac_No == -999) return ; 
+			System.out.print("Enter Your Account Number : ");
+			toAcNo = Input.getInt();	
+			if(toAcNo == -999) return ; 
+			toAc = cus.FindAccount(toAcNo);
+			if(toAc == null)
+			{
+				System.out.println("\n *** Not Valid Account Number ***\n");
+				return ;
+			}
 		}
 
-		System.out.print("Enter Receiver Account Number : ");
-		int fromAcNo = Input.getInt();
+		System.out.print("Enter Sender Account Number : ");
+		fromAcNo = Input.getInt();
 		
 		if(fromAcNo == -999) return ; 
 
-		ac = cus.FindAccount(fromAcNo);
-		if(ac == null || ac_No == fromAcNo)
+		if(toAcNo == fromAcNo)
 		{
 			System.out.println("\n *** Not Valid Account Number ***\n");
 			return  ; 
@@ -420,12 +435,39 @@ public class Bank
 			return  ; 
 		}
 
-		if(ac.balance < amt)
+		String query = "Insert into CheckRecipt(fromAc, toAc, amt, isApproved, isPending) values( " + fromAc.ac_No +  " , " + toAc.ac_No + " , " + amt + ", false, true)" ;
+		Sql.Update(query); 
+		System.out.println("\t\t<<< Check has been sent for Approval >>>\n");
+	}
+
+	public void ViewCheck(Customer cus) throws Exception
+	{
+		ResultSet rs = Sql.Select("Select * from CheckRecipt where toAc in (Select Ac_no from Account where Customer_ID = " + cus.user_ID + " )" ) ;
+		Main.cls();
+		System.out.println(
+			"\t\t ::: All Check Receipt ::: \n\n" + 
+			"| Id | From Ac | To Ac | Amount | Status |\n" 
+		);
+
+		while(rs.next())
 		{
-			System.out.println("\n *** Not Enough Money in your Account ***\n");
-			return ; 
+			int id = rs.getInt("id");
+			int fromAc = rs.getInt("fromAc");
+			int toAc = rs.getInt("toAc");
+			double amt = rs.getDouble("amt");
+			boolean isaproved = rs.getBoolean("isApproved");
+			boolean isPending = rs.getBoolean("isPending");
+
+			System.out.print(id + " \t " + fromAc + " \t " + toAc + " \t " + amt + " \t ");
+			if(isPending)
+				System.out.println("Pending");
+			else if(isaproved)
+				System.out.println("Accepted");
+			else
+				System.out.println("Rejected");
+
 		}
-		
-		Account.CheckRequest(cus, ac, fromAc, amt);
+
+		System.out.println("\n\t\t\t ***\n");
 	}
 }
