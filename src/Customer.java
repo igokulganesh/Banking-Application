@@ -1,11 +1,15 @@
 import java.sql.*;
 import java.util.*;
 
-public class Customer 
+class User 
 {
 	public int user_ID ;
 	public String username ; 
 	public String password ; 
+}
+
+public class Customer extends User
+{
 	public ArrayList<Account> acList ;
 
 	public ArrayList<Account> getAllAccounts(int id) throws Exception
