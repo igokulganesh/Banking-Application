@@ -9,7 +9,7 @@ public class Bank
 			if(ch != 0)
 			{
 				Main.cls(); 
-				System.out.print("1. Login\n2. SignUp \n0. Exit\n\nEnter Your Choice: ");
+				System.out.print("1. Login\n2. SignUp \n3. Staff Login\n0. Exit\n\nEnter Your Choice: ");
 			}
 			ch = Input.getInt(); 
 			switch(ch)
@@ -42,6 +42,17 @@ public class Bank
 				Input.prompt();
 				HomeMenu(cus);
 				break ;
+			case 3:
+				Employee emp = Employee.Login();
+				if(emp == null)
+				{
+					System.out.println("\n\t\t\t*** Login Failed ***\n");
+					Input.prompt();
+					break ; 
+				}
+				else
+					emp.menu(); 
+				break ; 
 			case 0:
 				System.exit(0);
 			default:
@@ -65,7 +76,9 @@ public class Bank
 				"\t 3. Enroll WithDrawal \n" +
 				"\t 4. Money Transfer \n" + 
 				"\t 5. Account Statement \n" + 
-				"\t 6. Open an Account \n" + 
+				"\t 6. Check Request \n" +
+				"\t 7. Check Receipt \n" +  
+				"\t 8. Open an Account \n" + 
 				/*"\t 8. Close an Account \n" +*/
 				//"\t 9. Preference \n" +
 	 			"\t 0. Quit \n\n"  + 
@@ -98,6 +111,9 @@ public class Bank
 				AccountStatement(cus); 
 				break ; 
 			case 6:
+				// Check Request 
+				CheckRequest(cus); 
+			case 8:
 				// Open an Account 
 				OpenAccount(cus);
 				break ;
@@ -122,7 +138,6 @@ public class Bank
 		}	
 		cus.showAllAccounts(); 
 	}
-
 
 	public void Deposit(Customer cus) throws Exception
 	{
@@ -351,4 +366,66 @@ public class Bank
 		ac.AccountDetails();
 	}
 
+	public void CheckRequest(Customer cus) throws Exception
+	{
+		Main.cls();
+		System.out.println(" ::: Check Request :::\n");
+		int ac_No ;
+		double amt ; 
+		Account ac, fromAc ;
+		if(cus.acList.size() == 0)
+		{
+			System.out.println("\t\t<<< You Have No Account >>>\n");
+			return  ; 
+		}
+		else if(cus.acList.size() == 1)
+			ac_No = cus.acList.get(0).ac_No ; 
+		else
+		{
+			cus.showAllAccounts(); 
+			System.out.print("Enter Account Number : ");
+			ac_No = Input.getInt();	
+			if(ac_No == -999) return ; 
+		}
+
+		System.out.print("Enter Receiver Account Number : ");
+		int fromAcNo = Input.getInt();
+		
+		if(fromAcNo == -999) return ; 
+
+		ac = cus.FindAccount(fromAcNo);
+		if(ac == null || ac_No == fromAcNo)
+		{
+			System.out.println("\n *** Not Valid Account Number ***\n");
+			return  ; 
+		}
+ 
+		try
+		{
+			fromAc = new Account(fromAcNo); 
+		}catch( Exception ex)
+		{
+			System.out.println("Not Valid Account Number");
+			return  ; 
+		}
+		
+
+		System.out.print("Enter the Amount : ");
+		amt = Input.getDouble();
+		
+		if(amt == -999.0) return ; 
+		if(amt < 0) 
+		{
+			System.out.println("Amount cannot be Negative");
+			return  ; 
+		}
+
+		if(ac.balance < amt)
+		{
+			System.out.println("\n *** Not Enough Money in your Account ***\n");
+			return ; 
+		}
+		
+		Account.CheckRequest(cus, ac, fromAc, amt);
+	}
 }

@@ -116,7 +116,17 @@ public class Account
 		MakeTransaction(toAc.ac_No, 0, amt, toAc.balance, "Money Received From (" + ac.ac_No  + ") " + cus.username );
 		System.out.println("\t<<< Transaction Successfull >>>\n");
 	}
-	
+
+	public static void CheckRequest(Customer cus, Account toAc, Account fromAc, double amt) throws Exception
+	{	
+		String query = "Insert into CheckRecipt(fromAc, toAc, amt, isApproved, isPending) values( " + fromAc.ac_No +  " , " + toAc.ac_No + " , " + amt + ", false, true)" ;
+		Sql.Update(query); 
+		toAc.IncreaseBal(amt); 
+		Customer fromCus = Customer.getCustomer(fromAc.cus_id);
+		MakeTransaction(toAc.ac_No, 0, amt, toAc.balance, "Money Received From (" + fromAc.ac_No  + ") " + fromCus.username + " through Check" );
+		System.out.println("\t\t<<< Check waiting for Approval >>>\n");
+	}	
+
 	public void AccountDetails()
 	{
 		System.out.println(
