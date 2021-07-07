@@ -106,14 +106,17 @@ public class Account
 			return ; 
 		} 
 
-		toAc.IncreaseBal(amt);
 		ac.IncreaseBal(-amt);
 
 		if(toAc.cus_id == ac.cus_id)
 			cus.acList = cus.getAllAccounts(ac.cus_id); 
 
 		MakeTransaction(ac.ac_No, amt, 0, ac.balance,  "Money Transfered to (" + toAc.ac_No  + ") " + toCus.username );
-		MakeTransaction(toAc.ac_No, 0, amt, toAc.balance, "Money Received From (" + ac.ac_No  + ") " + cus.username );
+		Sql.Update("Insert into TransactionReq" +
+			"(fromAc, toAc, amt, isApproved, isPending)" +
+			"values( " + ac.ac_No +  " , " + toAc.ac_No + " , " + amt + ", false, true);" 
+		); 
+		/*MakeTransaction(toAc.ac_No, 0, amt, toAc.balance, "Money Received From (" + ac.ac_No  + ") " + cus.username );*/
 		System.out.println("\t<<< Transaction Successfull >>>\n");
 	}
 

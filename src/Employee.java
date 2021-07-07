@@ -49,6 +49,8 @@ public class Employee extends User
 			System.out.print(
 				"\n\t 1. Check Pending Request\n" +
 				"\t 2. All Check Receipt\n" +
+				"\t 3. Transaction Request\n" + 
+				"\t 4. Transaction Details\n" +
 	 			"\t 0. Back \n\n"  + 
 				"Enter Your Choice: "
 			);
@@ -84,6 +86,34 @@ public class Employee extends User
 					ApprovedCheck();
 					System.out.println("\t\t\t ***\n");
 					break ;
+				case 3: 
+					// Transaction Request
+					Main.cls();
+					System.out.println(
+						"\t\t ::: Transaction Request ::: \n\n" + 
+						"| Id | From Ac | To Ac | Amount | isApproved |\n" 
+					);
+					
+					if(!PendingTrans())
+					{
+						System.out.println("\t\t *** Currently No Pending Request *** ");
+						break ; 
+					}
+					System.out.print("\nEnter the Id to verify : ");
+					id = Input.getInt(); 
+					VerifyTrans(id);
+
+					break ; 
+				case 4:
+					// All Transaction 
+					Main.cls();
+					System.out.println(
+						"\t\t ::: Check Request ::: \n\n" + 
+						"| Id | From Ac | To Ac | Amount | isApproved |\n" 
+					);
+					PendingTrans();
+					ApprovedTrans();
+					break ; 
 				case 0: 
 					return ; 
 				default:
@@ -174,6 +204,31 @@ public class Employee extends User
 		return notEmpty ;
 	}
 
+	public boolean PendingTrans() throws Exception
+	{
+		ResultSet rs = Sql.Select("Select * from TransactionReq where isPending = true") ;
+		boolean notEmpty = false ; 
+		while(rs.next())
+		{
+			int id = rs.getInt("id");
+			int fromAc = rs.getInt("fromAc");
+			int toAc = rs.getInt("toAc");
+			double amt = rs.getDouble("amt");
+			boolean isaproved = rs.getBoolean("isApproved");
+			boolean isPending = rs.getBoolean("isPending");
+
+			System.out.print(id + " \t " + fromAc + " \t " + toAc + " \t " + amt + " \t ");
+			if(isPending)
+				System.out.println("Pending");
+			else if(isaproved)
+				System.out.println("Accepted");
+			else
+				System.out.println("Rejected");
+			notEmpty = true ; 
+		}
+		return notEmpty ;
+	}
+
 	public boolean ApprovedCheck() throws Exception
 	{
 		ResultSet rs = Sql.Select("Select * from CheckRecipt where isPending = false") ;
@@ -199,4 +254,78 @@ public class Employee extends User
 		}
 		return notEmpty ; 
 	}
+
+	public boolean ApprovedTrans() throws Exception
+	{
+		ResultSet rs = Sql.Select("Select * from TransactionReq where isPending = false") ;
+		boolean notEmpty = false ; 
+		while(rs.next())
+		{
+			int id = rs.getInt("id");
+			int fromAc = rs.getInt("fromAc");
+			int toAc = rs.getInt("toAc");
+			double amt = rs.getDouble("amt");
+			boolean isaproved = rs.getBoolean("isApproved");
+			boolean isPending = rs.getBoolean("isPending");
+
+			System.out.print(id + " \t " + fromAc + " \t " + toAc + " \t " + amt + " \t ");
+			if(isPending)
+				System.out.println("Pending");
+			else if(isaproved)
+				System.out.println("Accepted");
+			else
+				System.out.println("Rejected");
+
+			notEmpty = true ; 
+		}
+		return notEmpty ; 
+	}
+
+	public void VerifyTrans(int id) throws Exception
+	{
+		ResultSet rs = Sql.Select("Select * from TransactionReq where isPending = true and id = " + id) ;
+
+		if(!rs.next())
+		{
+			System.out.println("Not Valid Entry");
+			return ; 
+		}
+
+		int fromAcNo = rs.getInt("fromAc");
+		int toAcNo = rs.getInt("toAc");
+		double amt = rs.getDouble("amt");
+
+		Account fromAc = new Account(fromAcNo);
+		Account toAc = new Account(toAcNo); 
+		String query ; 
+
+		Customer fromCus = Customer.getCustomer(fromAc.cus_id) ;
+		Customer toCus = Customer.getCustomer(toAc.cus_id) ; 
+
+		System.out.print(
+			"From : " + fromCus.username + " ( " + fromAcNo + " )\n" +
+			"To : " + toCus.username + " ( " + toAcNo + " )\n" +
+			"Amount : Rs. " + amt + "\n" +
+			"\nDo you accept the Request (Y/N) ? "
+		);
+		char ch = Input.getChar();
+
+		if(ch != 'y' && ch != 'Y')
+		{
+			query = "Update TransactionReq set isApproved = false, isPending = false where id = " + id ; 
+			Sql.Update(query);
+			fromAc.IncreaseBal(amt); 	
+			Account.MakeTransaction(fromAc.ac_No, 0, amt, fromAc.balance, "Money Transaction Cancelled Refund");
+			System.out.println("\t<<< Request Rejected >>>\n");
+			return ; 
+		}
+
+		
+		toAc.IncreaseBal(amt); 
+		Account.MakeTransaction(toAc.ac_No, 0, amt, toAc.balance, "Money Received From " + fromCus.username +  " (" + fromAc.ac_No  + ")");
+		query = "Update TransactionReq set isApproved = true, isPending = false where id = " + id ; 
+		Sql.Update(query);
+		System.out.println("\t<<< Request Accepted >>>\n");
+	}
+
 }
