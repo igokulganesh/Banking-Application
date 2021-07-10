@@ -51,6 +51,7 @@ public class Employee extends User
 				"\t 2. All Check Receipt\n" +
 				"\t 3. Transaction Request\n" + 
 				"\t 4. Transaction Details\n" +
+				"\t 5. Valuable Customer\n" + 
 	 			"\t 0. Back \n\n"  + 
 				"Enter Your Choice: "
 			);
@@ -113,6 +114,26 @@ public class Employee extends User
 					);
 					PendingTrans();
 					ApprovedTrans();
+					break ; 
+				case 5:
+					Main.cls();
+					System.out.println(	
+						"\t\t\t ::: Valuable Customer ::: \n\n" + 
+						"| Customer ID \t\t| Avg Balance |\n"
+					);
+
+					String query = "Select Customer_id, Avg(close_bal) as Balance from Account inner Join " + 
+								" Transaction on Transaction.AC_no = Account.Ac_No group by Customer_Id order by Balance desc ; " ; 
+
+					ResultSet rs = Sql.Select(query);
+
+					while(rs.next())
+					{
+						id = rs.getInt(1);
+						double bal = rs.getDouble(2);
+						System.out.println(" " + id + " \t\t| " + bal );
+					}
+
 					break ; 
 				case 0: 
 					return ; 

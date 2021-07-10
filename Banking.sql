@@ -186,10 +186,51 @@ update CheckRecipt
 set isApproved = true, isPending = false where id = 1;
 
 select * from Transaction ;
-select * from Account ; 
+
+select avg(balance) as Balance, customer_id from Account where Ac_no in 
+(select Ac_no from Transaction group by ac_no )
+group by customer_id order by balance desc ;
+
+select yr, mon, avg(amt)
+from (SELECT extract(year from tdate) as yr, extract(month from tdate) as mon,
+             extract(day from tdate) as day,
+             SUM(IIF(INOUT = 0, AMOUNT, -AMOUNT)) as amt
+      FROM PETTYCASH
+      WHERE TDATE < '2012-01-01'
+      group by extract(year from tdate), extract(month from tdate),
+               extract(day from tdate)
+     ) t
+group by yr, mon
+order by yr, mon ;
+
+Select * from Account ;
+Select * from user ;
+Select * from transaction ; 
+
+select Ac_no, sum(debit) - sum(credit) as Sum from Transaction group by ac_no ;
+
+Select username, count(Ac_no) from user inner join
+Account on User.user_id = Account.customer_id 
+group by User.user_id ; 
+
+Select Customer_id, balance From Account group by Customer_id order by Balance desc ;
+
+Select Customer_id, Count(Transaction.Ac_no) From Transaction 
+inner join Account on Transaction.Ac_no = Account.Ac_no 
+group by Customer_id ;
+
+Select Customer_id, sum(credit) - sum(debit) as sum from Transaction 
+inner join Account on Transaction.Ac_no = Account.Ac_no 
+group by Customer_id order by sum desc ; 
+
+Select Customer_id, Avg(close_bal) as Balance from Account inner Join
+Transaction on Transaction.AC_no = Account.Ac_No group by Customer_Id  order by Balance desc ; 
+ 
+Select customer_id, balance from account where ac_no in 
+(select Ac_no, avg(close_bal) as balance  from Transaction group by ac_no order by balance desc) ; 
 
 Select * from OpenBalance where ac_no in (select Ac_no from Account where Customer_ID = 2) order by Date_of_Trans DESC; 
-
+Select * from account ;
 Select * from Transaction where ac_no in (select Ac_no from Account where Customer_ID = 1) order by Date_of_Trans DESC; 
 
 select * from user ;
