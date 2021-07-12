@@ -43,7 +43,9 @@ public class Employee extends User
 		System.out.println("\t Welcome ::: " + username + "\n");	
 
 		int ch = 1 ; 
-
+		int limit = 5 ; 
+		int criteria = 1 ; // 1 - Avg balance || 2 - Credit || 3 - transaction Count
+		
 		while(true)
 		{
 			System.out.print(
@@ -52,6 +54,7 @@ public class Employee extends User
 				"\t 3. Transaction Request\n" + 
 				"\t 4. Transaction Details\n" +
 				"\t 5. Valuable Customer\n" + 
+				"\t 6. Valuable Customer Settings\n" + 
 	 			"\t 0. Back \n\n"  + 
 				"Enter Your Choice: "
 			);
@@ -117,34 +120,74 @@ public class Employee extends User
 					break ; 
 				case 5:
 					// Preferred Customers 
+					preferredCustomer(limit, criteria);
+					break ;
+				case 6: 
+					// Settings for criteria 
 					Main.cls();
-					System.out.println(	
-						"\t\t\t ::: Valuable Customer ::: \n\n" + 
-						"| Customer ID \t| Points |\n"
-					);
+					System.out.print(
+						"\t\t\t ::: Preferred Customers Criteria ::: \n\n" + 
+						"Current Criteria = " + criteria + "\t rows = " + limit + "\n\n" + 
+						"\t1. Average Balance\n" +
+						"\t2. Based on Credits\n" + 
+						"\t3. Transaction Count\n" + 
+						"\n\nChoose Criteria : "
+					); 
 
-					String query = 
-					"Select Customer_id, (Avg(close_bal)/100000) + (sum(credit)/200000) as Score " +
-					"from Account A inner Join Transaction T on T.AC_no = A.Ac_No " +
-					"where MONTH(T.Date_of_Trans) = MONTH(CURRENT_DATE()) " + 
-					"AND YEAR(T.Date_of_Trans) = YEAR(CURRENT_DATE()) " + 
-					"group by Customer_Id order by Score desc limit 5 ;" ; 
+					criteria = Input.getInt() ; 
+					criteria = ( criteria >= 1 && criteria <= 3 ? criteria : 1) ; 
 
-					ResultSet rs = Sql.Select(query);
+					System.out.print("Enter the rows count : ");
+					limit = Input.getInt() ; 
+					limit = ( limit > 0 ? limit : 5 ) ;
 
-					while(rs.next())
-					{
-						id = rs.getInt(1);
-						double bal = rs.getDouble(2);
-						System.out.println(" " + id + " \t\t| " + bal );
-					}
-
+					preferredCustomer(limit, criteria); 
 					break ; 
 				case 0: 
 					return ; 
 				default:
 					System.out.println("Please Enter Valid Choice !!!");
 			}
+		}
+	}
+
+	public void preferredCustomer(int limit, int criteria) throws Exception
+	{
+		Main.cls();
+
+		int d1 = 100000, d2 = 500000 ; 
+
+		if(criteria == 2)
+		{
+			d1 = 500000 ; 
+			d2 = 100000 ; 
+		}
+
+		String query = 
+		"Select Customer_id, (Avg(close_bal)/ " + d1 + " ) + (sum(credit)/ " + d2 + " ) as Score, Count(T.Ac_no) as TransactionCount " +
+		"from Account A inner Join Transaction T on T.AC_no = A.Ac_No " +
+		"where MONTH(T.Date_of_Trans) = MONTH(CURRENT_DATE()) " + 
+		"AND YEAR(T.Date_of_Trans) = YEAR(CURRENT_DATE()) group by Customer_Id order by " ; 
+
+		if(criteria == 3)
+			query += "TransactionCount desc, Score desc " ; 
+		else
+			query += "Score desc, TransactionCount desc " ;
+
+		query += " limit " + limit ; 
+
+		ResultSet rs = Sql.Select(query);
+
+		System.out.println(	
+			"\t\t\t ::: Valuable Customer ::: \n\n" + 
+			"| Customer ID \t| Transaction Count \t | Points \n"
+		);
+		while(rs.next())
+		{
+			int id = rs.getInt(1);
+			double bal = rs.getDouble(2);
+			int count = rs.getInt(3); 
+			System.out.println(" " + id + " \t\t| " + count + "\t\t| " + bal);
 		}
 	}
 
