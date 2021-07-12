@@ -116,14 +116,19 @@ public class Employee extends User
 					ApprovedTrans();
 					break ; 
 				case 5:
+					// Preferred Customers 
 					Main.cls();
 					System.out.println(	
 						"\t\t\t ::: Valuable Customer ::: \n\n" + 
-						"| Customer ID \t\t| Avg Balance |\n"
+						"| Customer ID \t| Points |\n"
 					);
 
-					String query = "Select Customer_id, Avg(close_bal) as Balance from Account inner Join " + 
-								" Transaction on Transaction.AC_no = Account.Ac_No group by Customer_Id order by Balance desc ; " ; 
+					String query = 
+					"Select Customer_id, (Avg(close_bal)/100000) + (sum(credit)/200000) as Score " +
+					"from Account A inner Join Transaction T on T.AC_no = A.Ac_No " +
+					"where MONTH(T.Date_of_Trans) = MONTH(CURRENT_DATE()) " + 
+					"AND YEAR(T.Date_of_Trans) = YEAR(CURRENT_DATE()) " + 
+					"group by Customer_Id order by Score desc limit 5 ;" ; 
 
 					ResultSet rs = Sql.Select(query);
 

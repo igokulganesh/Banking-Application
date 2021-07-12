@@ -191,18 +191,6 @@ select avg(balance) as Balance, customer_id from Account where Ac_no in
 (select Ac_no from Transaction group by ac_no )
 group by customer_id order by balance desc ;
 
-select yr, mon, avg(amt)
-from (SELECT extract(year from tdate) as yr, extract(month from tdate) as mon,
-             extract(day from tdate) as day,
-             SUM(IIF(INOUT = 0, AMOUNT, -AMOUNT)) as amt
-      FROM PETTYCASH
-      WHERE TDATE < '2012-01-01'
-      group by extract(year from tdate), extract(month from tdate),
-               extract(day from tdate)
-     ) t
-group by yr, mon
-order by yr, mon ;
-
 Select * from Account ;
 Select * from user ;
 Select * from transaction ; 
